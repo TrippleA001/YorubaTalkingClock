@@ -1,30 +1,48 @@
-name: Build and Deploy Flutter Web
+# Simple workflow for deploying Flutter web app to GitHub Pages
+name: Deploy Flutter Web App to GitHub Pages
 
 on:
+  # Runs on pushes targeting the default branch
   push:
     branches:
-      - master  # Change to your default branch
+      - master
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.3' # or specify your version
+          flutter-version: '3.24.3'
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Web
-        run: flutter build web --release
+      - name: Build Flutter web
+        run: flutter build web
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages  # The branch that GitHub Pages uses for the website
-          folder: build/web  # The folder where the build output is stored
+        id: deployment
+        uses: actions/deploy-pages@v4
